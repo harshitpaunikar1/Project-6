@@ -12,3 +12,7 @@
 
 - Task summary: Evening follow-up: realized the confusion matrix plot was using the wrong label order so the precision/recall numbers in the inline comments were backwards. Fixed the plot and updated the interpretation block.
 - Deliverable: Fixed inverted label confusion. Embarrassing but caught it before moving on.
+## 2021-08-09 - Day 9: Feature importance review
+
+- Task summary: Spent today specifically on understanding which features were actually driving the churn signal. Ran permutation importance on the best model from last week and compared it to the raw correlation heatmap. There were two features that looked strong in correlation but contributed almost nothing to the model — both of them turned out to be proxies for contract length which was already a direct feature. Removed the redundant columns and retrained. The model held up essentially the same which confirmed they were not adding real signal.
+- Deliverable: Trimmed two redundant features. Model unchanged, which is the good outcome here.
