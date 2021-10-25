@@ -16,3 +16,7 @@
 
 - Task summary: Spent today specifically on understanding which features were actually driving the churn signal. Ran permutation importance on the best model from last week and compared it to the raw correlation heatmap. There were two features that looked strong in correlation but contributed almost nothing to the model — both of them turned out to be proxies for contract length which was already a direct feature. Removed the redundant columns and retrained. The model held up essentially the same which confirmed they were not adding real signal.
 - Deliverable: Trimmed two redundant features. Model unchanged, which is the good outcome here.
+## 2021-10-25 - Day 10: Business readout prep
+
+- Task summary: Shifted focus to presenting the Telecom Churn work for a non-technical audience. The internal notebook was fine for technical review but too dense for a business summary. Extracted the key findings into a cleaner slide-style notebook: what churn rate looks like overall, which customer segments show highest risk, and what the model says are the top driving factors. Kept the visuals simple — bar charts and a highlight callout for the main recommendation.
+- Deliverable: Business-facing summary notebook created. Ready for non-technical review.
