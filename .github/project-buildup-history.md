@@ -20,3 +20,7 @@
 
 - Task summary: Shifted focus to presenting the Telecom Churn work for a non-technical audience. The internal notebook was fine for technical review but too dense for a business summary. Extracted the key findings into a cleaner slide-style notebook: what churn rate looks like overall, which customer segments show highest risk, and what the model says are the top driving factors. Kept the visuals simple — bar charts and a highlight callout for the main recommendation.
 - Deliverable: Business-facing summary notebook created. Ready for non-technical review.
+## 2021-10-28 - Day 10: Business readout prep
+
+- Task summary: Revisited the churn model output to double-check the probability thresholds being used for the binary classification decision. The default 0.5 threshold was not the right choice for this business case — a false negative (missing a churner) is more costly than a false positive. Moved the threshold to 0.35 and showed the precision-recall tradeoff with a proper curve.
+- Deliverable: Threshold adjusted to 0.35. PR curve plotted and included in the summary.
