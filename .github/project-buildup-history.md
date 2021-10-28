@@ -24,3 +24,7 @@
 
 - Task summary: Revisited the churn model output to double-check the probability thresholds being used for the binary classification decision. The default 0.5 threshold was not the right choice for this business case — a false negative (missing a churner) is more costly than a false positive. Moved the threshold to 0.35 and showed the precision-recall tradeoff with a proper curve.
 - Deliverable: Threshold adjusted to 0.35. PR curve plotted and included in the summary.
+## 2021-10-28 - Day 10: Business readout prep
+
+- Task summary: Cleaned up the cost-benefit framing section. Earlier version had placeholder numbers — replaced them with reasonable industry approximations and made sure the assumptions were clearly stated.
+- Deliverable: Cost-benefit section filled in with documented assumptions.
