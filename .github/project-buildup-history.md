@@ -28,3 +28,7 @@
 
 - Task summary: Cleaned up the cost-benefit framing section. Earlier version had placeholder numbers — replaced them with reasonable industry approximations and made sure the assumptions were clearly stated.
 - Deliverable: Cost-benefit section filled in with documented assumptions.
+## 2021-11-29 - Day 11: Final notebook cleanup
+
+- Task summary: Did a final cleanup pass on the telecom churn notebook today. Went through every cell and removed the ones that were exploratory scratch work that was not contributing to the narrative. Merged a few related analysis cells that were split across too many chunks. Made sure the markdown narrative flowed end to end and matched what the code was actually doing — there were a couple places where earlier iterations had been updated but the commentary still described the old approach.
+- Deliverable: Notebook cleaned and narrative updated. Ready for portfolio.
