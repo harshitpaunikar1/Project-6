@@ -32,3 +32,7 @@
 
 - Task summary: Did a final cleanup pass on the telecom churn notebook today. Went through every cell and removed the ones that were exploratory scratch work that was not contributing to the narrative. Merged a few related analysis cells that were split across too many chunks. Made sure the markdown narrative flowed end to end and matched what the code was actually doing — there were a couple places where earlier iterations had been updated but the commentary still described the old approach.
 - Deliverable: Notebook cleaned and narrative updated. Ready for portfolio.
+## 2021-11-29 - Day 11: Final notebook cleanup
+
+- Task summary: Added the requirements.txt and a brief usage section to the README. Previously the project had no documented setup instructions which would have made it hard for someone else to run.
+- Deliverable: README and requirements.txt added. Setup documented.
