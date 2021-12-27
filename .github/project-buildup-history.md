@@ -36,3 +36,7 @@
 
 - Task summary: Added the requirements.txt and a brief usage section to the README. Previously the project had no documented setup instructions which would have made it hard for someone else to run.
 - Deliverable: README and requirements.txt added. Setup documented.
+## 2021-12-27 - Day 12: Portfolio wrap
+
+- Task summary: Last day of the year on this project. Did a final review of the whole Telecom Churn Prediction repository — checked that all files were named sensibly, that the README linked to the right notebook, and that the outputs directory was not accidentally including large intermediate files. Also wrote a short personal retrospective note in the project doc about what I would do differently — mainly starting with the business cost framing rather than treating it as a pure accuracy problem.
+- Deliverable: Repository clean and ready. Retrospective note written for future reference.
