@@ -12,3 +12,7 @@
 
 - Task summary: Used the next day to keep the momentum going for Telecom Churn Prediction. I was still piecing things together, so I focused on trying to collect the raw dataset and set up a clean notebook to work in and wrote down the stuff that looked important. At this stage nothing was fully locked, so I kept a rough list of things that looked useful and ignored the rest for now. I kept bouncing between the notebook, small observations, and quick plots until the direction felt usable.
 - Deliverable: I wrapped up the day with starter notebook mostly in place. It was not perfect, but it was good enough to keep the project moving. I also left myself a few rough reminders for the next day so I would not have to rediscover the same context again.
+## 2022-03-11 - Day 2: Dataset setup pass
+
+- Task summary: Quick follow-up: pushed a tiny fix after a teammate's comment — nothing major, just a wording issue in the output.
+- Deliverable: Nothing dramatic — just keeping things tidy.
