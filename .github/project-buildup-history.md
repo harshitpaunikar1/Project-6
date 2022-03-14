@@ -16,3 +16,7 @@
 
 - Task summary: Quick follow-up: pushed a tiny fix after a teammate's comment — nothing major, just a wording issue in the output.
 - Deliverable: Nothing dramatic — just keeping things tidy.
+## 2022-03-14 - Day 3: Cleaning pass
+
+- Task summary: By this point I had the rough direction, so the work became more practical. I spent most of the day trying to fix missing values, bad types, duplicates, and obvious data issues and make the whole thing feel less half baked. By now I had enough structure to keep going without staring at the screen too long, which honestly helped a lot. Most of the progress here came from patient cleanup more than anything flashy.
+- Deliverable: I wrapped up the day with cleaned dataset mostly in place. It was not perfect, but it was good enough to keep the project moving. There were still a couple of loose parts, but nothing serious enough to block the next step.
