@@ -32,3 +32,7 @@
 
 - Task summary: Noticed something off from this morning — ran the whole thing end to end again after a fresh look. Caught a stale import that broke the flow.
 - Deliverable: Pushed before end of day.
+## 2022-03-16 - Day 5: Feature prep
+
+- Task summary: Noticed something off from this morning — wrapped a repeated block in a helper function since it showed up three times.
+- Deliverable: Small fix, clean result.
