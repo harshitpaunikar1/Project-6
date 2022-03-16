@@ -28,3 +28,7 @@
 
 - Task summary: This was the middle stretch where the project started feeling real. I kept going and tried to choose the target and prepare the model input features, then cleaned up whatever looked confusing or weak from the earlier days. The middle part always takes longer than it should, mostly becuase one fix usually reveals two more things to clean up. I kept bouncing between the notebook, small observations, and quick plots until the direction felt usable.
 - Deliverable: Ended the day with feature set in hand, plus a few side notes on what still needed fixing later. I also left myself a few rough reminders for the next day so I would not have to rediscover the same context again.
+## 2022-03-16 - Day 5: Feature prep
+
+- Task summary: Noticed something off from this morning — ran the whole thing end to end again after a fresh look. Caught a stale import that broke the flow.
+- Deliverable: Pushed before end of day.
