@@ -36,3 +36,7 @@
 
 - Task summary: Noticed something off from this morning — wrapped a repeated block in a helper function since it showed up three times.
 - Deliverable: Small fix, clean result.
+## 2022-03-17 - Day 6: Baseline model
+
+- Task summary: This was the middle stretch where the project started feeling real. I kept going and tried to train a simple baseline and record its performance, then cleaned up whatever looked confusing or weak from the earlier days. By now I had enough structure to keep going without staring at the screen too long, which honestly helped a lot. Most of the progress here came from patient cleanup more than anything flashy.
+- Deliverable: Ended the day with baseline results in hand, plus a few side notes on what still needed fixing later. There were still a couple of loose parts, but nothing serious enough to block the next step.
