@@ -48,3 +48,7 @@
 
 - Task summary: Closer to the end, I was mostly tightening things up instead of inventing new scope. The job for the day was to inspect metrics and error cases so the result is believable so the final result looked a bit more complete. Most of the heavy lifting was already done, so this part was more about making the rough edges less obvious. I kept bouncing between the notebook, small observations, and quick plots until the direction felt usable.
 - Deliverable: Ended the day with evaluation notes in hand, plus a few side notes on what still needed fixing later. I also left myself a few rough reminders for the next day so I would not have to rediscover the same context again.
+## 2022-03-21 - Day 8: Evaluation
+
+- Task summary: Ended up revisiting this in the evening — pushed a config tweak after noticing the wrong default param was being used.
+- Deliverable: Pushed before end of day.
