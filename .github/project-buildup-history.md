@@ -52,3 +52,7 @@
 
 - Task summary: Ended up revisiting this in the evening — pushed a config tweak after noticing the wrong default param was being used.
 - Deliverable: Pushed before end of day.
+## 2022-03-21 - Day 8: Evaluation
+
+- Task summary: Circled back: pushed a config tweak after noticing the wrong default param was being used.
+- Deliverable: Solid now, moving on.
