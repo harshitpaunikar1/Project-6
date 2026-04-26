@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Churn Retention Playbook: From Signal to Save Offer</title>
+  <meta name="description" content="A telecom churn-retention playbook: how a classification model connects to a tiered intervention strategy, what a false positive costs, and which signals actually predict who is about to leave.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:       #111111;
+      --ink-mid:   #222222;
+      --ink-body:  #333333;
+      --ink-light: #555555;
+      --ink-muted: #888888;
+      --rule:      #ddd;
+      --divider:   #e8e8e8;
+      --bg:        #ffffff;
+      --bg-tint:   #f0f0f0;
+      --display:   'Syne', sans-serif;
+      --body:      'Inter', sans-serif;
+      --mono:      'Fira Code', monospace;
+    }
+
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--body); }
+
+    /* ── PLAYBOOK HEADER ── */
+    .pb-header {
+      padding: 3rem 3.5rem 2.5rem;
+      border-bottom: 3px solid var(--ink);
+    }
+    .pb-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 1.2rem;
+    }
+    .pb-tag::before {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 2px;
+      background: var(--ink);
+    }
+    .pb-header h1 {
+      font-family: var(--display);
+      font-size: clamp(2rem, 4.5vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.08;
+      color: var(--ink);
+      max-width: 700px;
+    }
+    .pb-header h1 span { display: block; font-weight: 400; font-size: 0.7em; color: var(--ink-light); }
+    .pb-deck {
+      font-family: var(--body);
+      font-weight: 300;
+      font-size: 1.05rem;
+      color: var(--ink-light);
+      max-width: 640px;
+      line-height: 1.7;
+      margin-top: 1.1rem;
+    }
+    /* stat strip */
+    .stat-strip {
+      display: flex;
+      gap: 0;
+      margin-top: 2rem;
+      border-top: 1px solid var(--divider);
+      padding-top: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      padding: 0 2rem 0 0;
+      border-right: 1px solid var(--divider);
+      margin-right: 2rem;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: var(--display);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-top: 0.3rem;
+    }
+
+    /* ── ARTICLE ── */
+    .article {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 3.5rem 5rem;
+    }
+    @media (max-width: 700px) {
+      .pb-header, .article { padding-left: 1.5rem; padding-right: 1.5rem; }
+    }
+
+    /* PLAYBOOK TAB h2 */
+    h2 {
+      font-family: var(--display);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--ink);
+      padding: 0.5em 1.1em;
+      margin-top: 3.5rem;
+      margin-bottom: 1.6rem;
+      display: inline-block;
+    }
+    h3 {
+      font-family: var(--display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 2rem 0 0.6rem;
+    }
+
+    p { font-size: 1rem; line-height: 1.82; color: var(--ink-body); margin-bottom: 1.2rem; }
+    p strong { color: var(--ink); }
+    ul, ol { padding-left: 1.4rem; color: var(--ink-body); margin-bottom: 1.2rem; }
+    li { font-size: 1rem; line-height: 1.75; margin-bottom: 0.45rem; }
+    li strong { color: var(--ink); }
+
+    /* ACTION CARDS */
+    .action-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1px;
+      background: var(--ink);
+      border: 1px solid var(--ink);
+      margin: 2rem 0;
+    }
+    .action-card {
+      background: var(--bg);
+      padding: 1.2rem 1.3rem;
+    }
+    .action-card.dark {
+      background: var(--ink);
+    }
+    .card-tier {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 0.5rem;
+    }
+    .action-card.dark .card-tier { color: #888; }
+    .card-title {
+      font-family: var(--display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+    .action-card.dark .card-title { color: #f5f5f5; }
+    .card-body {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--ink-light);
+    }
+    .action-card.dark .card-body { color: #bbb; }
+    .card-metric {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      margin-top: 0.7rem;
+      border-top: 1px solid var(--divider);
+      padding-top: 0.5rem;
+    }
+    .action-card.dark .card-metric { color: #666; border-color: #333; }
+
+    /* figure */
+    figure { margin: 2.5rem 0 1rem; }
+    figcaption {
+      font-family: var(--body);
+      font-size: 0.78rem;
+      font-style: italic;
+      color: var(--ink-muted);
+      margin-top: 0.65rem;
+      line-height: 1.55;
+    }
+    .diagram-scroll { overflow-x: auto; }
+
+    /* code */
+    pre {
+      background: #111;
+      color: #f5f5f5;
+      font-family: var(--mono);
+      font-size: 0.83rem;
+      padding: 1.2rem 1.5rem;
+      overflow-x: auto;
+      line-height: 1.72;
+      margin: 1.5rem 0;
+    }
+    code { font-family: var(--mono); background: var(--bg-tint); padding: 0.1em 0.35em; font-size: 0.87rem; }
+
+    /* closing */
+    .end-rule {
+      border-top: 2px solid var(--ink);
+      margin-top: 4rem;
+      padding-top: 1.2rem;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--ink-muted);
+      line-height: 1.85;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════ PLAYBOOK HEADER ════════════ -->
+<div class="pb-header">
+  <p class="pb-tag">Retention Playbook &nbsp;·&nbsp; Telecom &nbsp;·&nbsp; Churn Prediction &amp; Intervention</p>
+  <h1>The Churn Retention Playbook
+    <span>From Signal to Save Offer</span>
+  </h1>
+  <p class="pb-deck">A churn model without a save strategy is an early warning system that nobody acts on. The useful question is not "can we predict who will leave?" — most operators can — it is "which customers should we try to save, with what offer, and at what cost?"</p>
+
+  <div class="stat-strip">
+    <div class="stat-item">
+      <div class="stat-num">15–25%</div>
+      <div class="stat-label">Annual churn rate, telecom</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">5–10×</div>
+      <div class="stat-label">Acquisition cost vs. retention</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">83%</div>
+      <div class="stat-label">Baseline accuracy achieved</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3 tiers</div>
+      <div class="stat-label">Save-offer structure</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ARTICLE ════════════ -->
+<div class="article">
+
+  <h2>The Economics of Leaving</h2>
+
+  <p>Churn in a telecom context means a customer has ended their contract or ported their number to a competitor. The industry's 15–25 percent annual average implies that roughly one in five customers will leave in any given year — which, at scale, means a mid-size operator is replacing tens of thousands of customers annually just to hold its subscriber base flat. The acquisition cost to replace each lost customer (sales commission, device subsidy, advertising attribution, onboarding overhead) runs 5–10× higher than what it would cost to retain them with a targeted offer.</p>
+
+  <p>That asymmetry is the entire economic case for churn modeling. If you can identify a customer who is about to leave with three to four weeks of lead time, and a targeted discount or service upgrade costs ₹200 to deliver, then the break-even threshold is simple: the save offer is worth it as long as the expected additional revenue from retention exceeds ₹200. For a customer on a ₹499/month plan, retaining them for two additional months covers the offer cost. The model doesn't need to be perfect — it needs to be good enough that the customers it flags are <em>more likely</em> to churn than the average customer, so the retention spend is concentrated where it actually changes behavior.</p>
+
+  <p>The telecom dataset here captures high-value customers — defined as customers in the top two or three revenue deciles — over a four-month observation window. The last month is the prediction target: did the customer churn? The first three months contain the behavioral signals used for prediction. This structure is important: you are not predicting who churned, you are predicting who <em>will</em> churn based on observed behavior changes that precede the decision to leave.</p>
+
+  <h2>Signal Patterns: What Predicts Churn</h2>
+
+  <p>Behavioral signals for churn prediction fall into three categories, each with different lead times and reliability.</p>
+
+  <h3>Usage Degradation (3–6 weeks lead time)</h3>
+  <p>The clearest behavioral precursor to churn is declining usage. A customer who was making 180 minutes of calls per month in month 1 and 2, drops to 80 minutes in month 3, and makes almost no calls in the churn prediction month, is exhibiting a classic pre-churn signature. The pattern matters more than any single month's absolute level: it is the <em>decline rate</em>, not the baseline usage, that predicts churn. A light user who consistently uses 50 minutes per month is not a high-risk customer. A power user who drops from 200 to 40 minutes over two months almost certainly has a competing SIM in their pocket already.</p>
+
+  <p>The same pattern applies to data usage, recharge frequency, and roaming activity. A customer who stops recharging as frequently, switches from high-value recharge vouchers to lower-value ones, or reduces international call usage (which is often an attachment to a specific carrier's plan) is showing early disengagement signals. Each of these degradation slopes can be computed as a feature: <code>voice_usage_slope_m2_to_m3</code>, <code>recharge_frequency_ratio</code>, etc.</p>
+
+  <h3>Network and Service Events (2–4 weeks lead time)</h3>
+  <p>Complaints, network quality feedback, and customer care interactions are strong churn predictors when they cluster. A single complaint is normal; two complaints in six weeks with no resolution, followed by declining usage, is a high-risk pattern. The dataset captures whether customers contacted customer care and how many times. The signal isn't "called customer care = likely to churn" — it's "called customer care multiple times without issue resolution while usage is also declining = very likely to churn."</p>
+
+  <h3>Competitive Sensitivity Signals (1–2 weeks lead time, but noisy)</h3>
+  <p>MNP (Mobile Number Portability) inquiry and SIM activation of a competing network are the most direct signals of imminent churn but are often not available in the dataset at the time prediction is needed. What proxy signals exist: a sudden drop in same-network calls (suggesting the customer's social graph is moving to a competitor), an increase in off-net calls (the customer is already maintaining cross-network relationships), and reduced engagement with carrier-specific services like streaming bundles or loyalty programs. These features require engineering from raw call detail records rather than being directly observable as columns.</p>
+
+  <!-- DIAGRAM 1: Lifecycle Trigger Map -->
+  <figure>
+    <div class="diagram-scroll">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 340" width="860" style="max-width:100%;display:block;">
+        <rect width="860" height="340" fill="#fff"/>
+        <text x="30" y="22" font-family="Fira Code,monospace" font-size="9" fill="#888" letter-spacing="1.5">LIFECYCLE TRIGGER MAP — CUSTOMER JOURNEY WITH CHURN SIGNAL INTERRUPTS</text>
+
+        <!-- ── JOURNEY TRACK ── -->
+        <!-- Main horizontal timeline -->
+        <line x1="60" y1="100" x2="800" y2="100" stroke="#111" stroke-width="2.5"/>
+
+        <!-- Journey stages -->
+        <!-- Onboard -->
+        <circle cx="90" cy="100" r="10" fill="#111"/>
+        <text x="90" y="125" font-family="Fira Code,monospace" font-size="8" fill="#555" text-anchor="middle">ONBOARD</text>
+        <text x="90" y="136" font-family="Fira Code,monospace" font-size="8.5" fill="#aaa" text-anchor="middle">M0</text>
+
+        <!-- Active / Happy -->
+        <circle cx="220" cy="100" r="10" fill="#111"/>
+        <text x="220" y="125" font-family="Fira Code,monospace" font-size="8" fill="#555" text-anchor="middle">ACTIVE</text>
+        <text x="220" y="136" font-family="Fira Code,monospace" font-size="8.5" fill="#aaa" text-anchor="middle">M1–M2</text>
+
+        <!-- Engagement signals normal -->
+        <rect x="145" y="58" width="70" height="26" fill="#f0f0f0" stroke="#ddd"/>
+        <text x="180" y="70" font-family="Fira Code,monospace" font-size="8.5" fill="#888" text-anchor="middle">Normal usage</text>
+        <text x="180" y="80" font-family="Fira Code,monospace" font-size="8.5" fill="#888" text-anchor="middle">Regular recharge</text>
+        <line x1="180" y1="84" x2="180" y2="92" stroke="#ccc" stroke-width="1"/>
+
+        <!-- Stress signal: usage drop -->
+        <circle cx="380" cy="100" r="12" fill="#333" stroke="#111" stroke-width="2"/>
+        <text x="380" y="104" font-family="Fira Code,monospace" font-size="8" font-weight="700" fill="#fff" text-anchor="middle">!</text>
+        <text x="380" y="125" font-family="Fira Code,monospace" font-size="8" fill="#111" text-anchor="middle">USAGE DROP</text>
+        <text x="380" y="136" font-family="Fira Code,monospace" font-size="8.5" fill="#888" text-anchor="middle">M3 signal</text>
+
+        <!-- interrupt arrow down to Risk Tier branch -->
+        <line x1="380" y1="112" x2="380" y2="165" stroke="#111" stroke-width="1.5"/>
+        <polygon points="375,162 385,162 380,172" fill="#111"/>
+
+        <!-- Complaint signal -->
+        <circle cx="520" cy="100" r="12" fill="#333" stroke="#111" stroke-width="2"/>
+        <text x="520" y="104" font-family="Fira Code,monospace" font-size="8" font-weight="700" fill="#fff" text-anchor="middle">!</text>
+        <text x="520" y="125" font-family="Fira Code,monospace" font-size="8" fill="#111" text-anchor="middle">COMPLAINT</text>
+        <text x="520" y="136" font-family="Fira Code,monospace" font-size="8.5" fill="#888" text-anchor="middle">M3 signal</text>
+        <line x1="520" y1="112" x2="520" y2="165" stroke="#111" stroke-width="1.5"/>
+        <polygon points="515,162 525,162 520,172" fill="#111"/>
+
+        <!-- Prediction window -->
+        <rect x="640" y="75" width="130" height="50" fill="#111"/>
+        <text x="705" y="97" font-family="Fira Code,monospace" font-size="8.5" font-weight="700" fill="#fff" text-anchor="middle">PREDICT</text>
+        <text x="705" y="109" font-family="Fira Code,monospace" font-size="8" fill="#aaa" text-anchor="middle">Churn probability</text>
+        <text x="705" y="120" font-family="Fira Code,monospace" font-size="8.5" fill="#888" text-anchor="middle">M4 window</text>
+        <line x1="640" y1="100" x2="639" y2="100" stroke="#fff" stroke-width="0"/>
+
+        <!-- ── RISK TIER BRANCH BOX ── -->
+        <rect x="100" y="172" width="600" height="130" fill="#f8f8f8" stroke="#ddd"/>
+        <text x="400" y="190" font-family="Fira Code,monospace" font-size="9" font-weight="700" fill="#111" text-anchor="middle" letter-spacing="1">RISK TIER ROUTING</text>
+
+        <!-- Tier 1: HIGH -->
+        <rect x="120" y="200" width="160" height="90" fill="#111"/>
+        <text x="200" y="218" font-family="Syne,sans-serif" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">HIGH RISK</text>
+        <text x="200" y="230" font-family="Fira Code,monospace" font-size="8.5" fill="#aaa" text-anchor="middle">P(churn) &gt; 0.7</text>
+        <text x="200" y="248" font-family="Fira Code,monospace" font-size="8.5" fill="#ccc" text-anchor="middle">→ Proactive call</text>
+        <text x="200" y="260" font-family="Fira Code,monospace" font-size="8.5" fill="#ccc" text-anchor="middle">→ Retention offer A</text>
+        <text x="200" y="272" font-family="Fira Code,monospace" font-size="8.5" fill="#ccc" text-anchor="middle">→ Priority queue</text>
+
+        <!-- Tier 2: MEDIUM -->
+        <rect x="300" y="200" width="160" height="90" fill="#555"/>
+        <text x="380" y="218" font-family="Syne,sans-serif" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">MEDIUM RISK</text>
+        <text x="380" y="230" font-family="Fira Code,monospace" font-size="8.5" fill="#ddd" text-anchor="middle">P(churn) 0.4–0.7</text>
+        <text x="380" y="248" font-family="Fira Code,monospace" font-size="8.5" fill="#ddd" text-anchor="middle">→ SMS + App push</text>
+        <text x="380" y="260" font-family="Fira Code,monospace" font-size="8.5" fill="#ddd" text-anchor="middle">→ Retention offer B</text>
+        <text x="380" y="272" font-family="Fira Code,monospace" font-size="8.5" fill="#ddd" text-anchor="middle">→ Standard queue</text>
+
+        <!-- Tier 3: LOW -->
+        <rect x="480" y="200" width="160" height="90" fill="#f0f0f0" stroke="#ddd"/>
+        <text x="560" y="218" font-family="Syne,sans-serif" font-size="9" font-weight="700" fill="#555" text-anchor="middle">LOW RISK</text>
+        <text x="560" y="230" font-family="Fira Code,monospace" font-size="8.5" fill="#888" text-anchor="middle">P(churn) &lt; 0.4</text>
+        <text x="560" y="248" font-family="Fira Code,monospace" font-size="8.5" fill="#888" text-anchor="middle">→ No active save</text>
+        <text x="560" y="260" font-family="Fira Code,monospace" font-size="8.5" fill="#888" text-anchor="middle">→ Loyalty reward</text>
+        <text x="560" y="272" font-family="Fira Code,monospace" font-size="8.5" fill="#888" text-anchor="middle">→ Monitor next cycle</text>
+
+        <!-- ── CHURN / RETAIN outcome ── -->
+        <line x1="200" y1="290" x2="200" y2="318" stroke="#111" stroke-width="1.5"/>
+        <text x="200" y="332" font-family="Fira Code,monospace" font-size="8" fill="#111" text-anchor="middle">CHURN (miss) / RETAIN (save)</text>
+        <line x1="380" y1="290" x2="380" y2="318" stroke="#555" stroke-width="1.5"/>
+        <text x="380" y="332" font-family="Fira Code,monospace" font-size="8" fill="#555" text-anchor="middle">PARTIAL SAVE</text>
+        <line x1="560" y1="290" x2="560" y2="318" stroke="#aaa" stroke-width="1.5"/>
+        <text x="560" y="332" font-family="Fira Code,monospace" font-size="8" fill="#aaa" text-anchor="middle">RETAIN (organic)</text>
+      </svg>
+    </div>
+    <figcaption><em>Fig. 1 — Lifecycle trigger map. The horizontal track shows the customer journey from onboarding through active use to the prediction window. Churn signal interrupts (usage drop, complaint spike) route customers into a risk-tier branch. Each tier receives a different intervention type and save-offer level. The map makes explicit that prediction and action are the same system — the model output is only meaningful when the routing and offer logic is defined in advance.</em></figcaption>
+  </figure>
+
+  <h2>Model Comparison: Why Accuracy Is the Wrong Metric</h2>
+
+  <p>The notebook reports accuracy scores around 83 percent for the best-performing model. That sounds reasonable until you consider the class distribution: if roughly 8–10 percent of customers churn, a model that predicts "not churn" for every customer achieves 90–92 percent accuracy. The 83 percent accuracy figure means nothing without knowing the class breakdown and without knowing how the model handles the minority class.</p>
+
+  <p>For churn prediction, the relevant metrics are <strong>precision and recall on the churner class</strong>, and the trade-off between them at the operating threshold. A model with high recall and low precision flags many customers as risky, including many who would have stayed anyway — this produces a large false-positive population that receives save offers they don't need, inflating the retention budget without producing retention. A model with high precision and low recall flags only customers it is very confident about, missing many actual churners — the saves it makes are efficient but incomplete.</p>
+
+  <p>Neither extreme is right. The optimal threshold depends on the cost structure: how expensive is a false positive (the save offer cost), and how expensive is a false negative (the lost revenue from a churner you missed). These are numbers the finance and operations teams can provide; the model can then be threshold-tuned to operate at the point on the precision-recall curve that minimizes total cost.</p>
+
+  <h3>Model Architecture: Logistic Regression vs. Random Forest</h3>
+  <p>The notebook compares several algorithms. Logistic regression and random forest represent different ends of the interpretability-accuracy spectrum, and both are sensible choices for this problem.</p>
+
+  <p><strong>Logistic regression</strong> produces coefficient-level interpretability: you can read off which features push the churn probability up or down and by how much on a log-odds scale. This is operationally valuable because it lets the retention team understand <em>why</em> specific customers are flagged, which in turn informs what save offer would address the underlying reason. A customer flagged primarily because of call drop complaints needs a different intervention than one flagged primarily because of declining recharge value.</p>
+
+  <p><strong>Random forest</strong> typically produces better discrimination (higher AUC) on this type of dataset by capturing non-linear feature interactions that logistic regression misses. A customer who has both declining usage AND a recent complaint AND is in their 11th month (approaching annual contract renewal) is a much higher risk than any single feature suggests — the combination matters, and tree ensembles handle combinations naturally. The tradeoff is opacity: feature importance scores from a random forest tell you which features matter globally, but not why a specific customer was scored the way they were.</p>
+
+<pre><code class="language-python"># Class-balanced random forest: handles 8% churn minority
+# without SMOTE — equivalent to 12:1 false-negative penalty
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.metrics import roc_auc_score, classification_report
+
+rf = RandomForestClassifier(
+    n_estimators=300,
+    class_weight='balanced',  # inversely proportional to class frequency
+    max_depth=12,
+    min_samples_leaf=20,      # prevent overfitting on rare churner patterns
+    random_state=42,
+    n_jobs=-1
+)
+
+# Stratified CV preserves churn ratio in each fold
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+auc_scores = cross_val_score(rf, X_train, y_train,
+                              cv=cv, scoring='roc_auc')
+print(f"CV AUC: {auc_scores.mean():.3f} ± {auc_scores.std():.3f}")
+# Target: AUC > 0.80 for viable scoreband construction</code></pre>
+
+  <h2>The Save Strategy: Three Offer Tiers</h2>
+
+  <p>A retention offer is not a single thing. Operators typically structure three distinct intervention levels, each with different economics and different eligibility criteria.</p>
+
+  <div class="action-cards">
+    <div class="action-card dark">
+      <div class="card-tier">TIER 1 — HIGH RISK</div>
+      <div class="card-title">Proactive Retention Call + Premium Save</div>
+      <div class="card-body">An agent call initiated by the operator before the customer contacts to cancel. Offer includes meaningful plan upgrade (free data add-on, speed boost, or device upgrade eligibility) at no extra cost. Reserved for high-value customers with P(churn) &gt; 0.7 who are in the top revenue quintile.</div>
+      <div class="card-metric">Cost: ₹400–800 per contact · Justifiable for ARPU &gt; ₹499/mo</div>
+    </div>
+    <div class="action-card">
+      <div class="card-tier">TIER 2 — MEDIUM RISK</div>
+      <div class="card-title">Automated Personalized Offer</div>
+      <div class="card-body">Push notification or SMS with a targeted discount or bundle upgrade. Personalization based on the customer's dominant usage pattern — heavy data users get a data top-up; heavy callers get a free minute bundle. No agent involvement; offer is delivered automatically via the retention workflow system.</div>
+      <div class="card-metric">Cost: ₹50–150 per contact · Viable for ARPU &gt; ₹299/mo</div>
+    </div>
+    <div class="action-card">
+      <div class="card-tier">TIER 3 — LOW RISK</div>
+      <div class="card-title">Loyalty Reward — No Active Save</div>
+      <div class="card-body">Customer is not at high churn risk but is eligible for a loyalty acknowledgment — bonus points, anniversary reward, or feature unlock. This maintains positive engagement without spending retention budget on customers who were not about to leave anyway. These customers represent true-positive negatives: correctly identified as low-risk.</div>
+      <div class="card-metric">Cost: ₹10–30 per contact · Brand maintenance value</div>
+    </div>
+  </div>
+
+  <p>The critical design decision is the cutoff that separates Tier 1 from Tier 2. Set it too low (flag everyone with P(churn) > 0.3 as Tier 1), and the agent call queue is flooded with customers who would have stayed anyway, the per-save cost skyrockets, and the retention team becomes cynical about the model's usefulness. Set it too high (only flag P(churn) > 0.9), and you miss many real churners who fall just below the threshold and receive an automated offer that isn't compelling enough to change their decision.</p>
+
+  <p>A practical calibration approach: segment the validation set by decile of predicted churn probability, compute the actual churn rate in each decile, and find the probability threshold above which the actual churn rate is meaningfully higher than the population average. That threshold — not 0.5 — is the one the business should use.</p>
+
+  <h2>False Positives Have a Cost Too</h2>
+
+  <p>Most churn-model discussions focus on the cost of false negatives (missing a churner). The cost of false positives — giving a retention offer to a customer who was never going to leave — is underappreciated.</p>
+
+  <p>The direct cost is the offer itself: a ₹200 save offer given to 10,000 customers who would have stayed costs ₹20 lakh with no retention benefit. The indirect cost is harder to quantify but real: a customer who receives an aggressive retention call or a significant discount offer may ask why they are being offered this now, which can prompt them to compare plans they had not been comparing — the intervention itself triggers the consideration you were trying to prevent.</p>
+
+  <p>This is called the <strong>treatment effect paradox</strong> in retention modeling. It is most pronounced for Tier 1 interventions (agent calls with significant discount offers) and least pronounced for Tier 3 loyalty rewards. The implication is that the precision-recall trade-off should be set more conservatively for expensive interventions and more liberally for cheap ones — which is exactly the three-tier structure above. High-cost interventions need high-confidence targeting; low-cost interventions can afford a broader net.</p>
+
+  <!-- DIAGRAM 2: Action Matrix -->
+  <figure>
+    <div class="diagram-scroll">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 260" width="760" style="max-width:100%;display:block;">
+        <rect width="760" height="260" fill="#fff"/>
+        <text x="30" y="22" font-family="Fira Code,monospace" font-size="9" fill="#888" letter-spacing="1.5">FIG. 2 — INTERVENTION COST-VALUE MATRIX</text>
+
+        <!-- Header row -->
+        <rect x="30" y="35" width="700" height="30" fill="#111"/>
+        <text x="80" y="55" font-family="Fira Code,monospace" font-size="8.5" font-weight="700" fill="#fff">TIER</text>
+        <text x="180" y="55" font-family="Fira Code,monospace" font-size="8.5" font-weight="700" fill="#fff">THRESHOLD</text>
+        <text x="290" y="55" font-family="Fira Code,monospace" font-size="8.5" font-weight="700" fill="#fff">CHANNEL</text>
+        <text x="400" y="55" font-family="Fira Code,monospace" font-size="8.5" font-weight="700" fill="#fff">CONTACT COST</text>
+        <text x="510" y="55" font-family="Fira Code,monospace" font-size="8.5" font-weight="700" fill="#fff">FALSE POS. RISK</text>
+        <text x="630" y="55" font-family="Fira Code,monospace" font-size="8.5" font-weight="700" fill="#fff">MIN ARPU</text>
+
+        <!-- Row 1 -->
+        <rect x="30" y="65" width="700" height="44" fill="#1a1a1a"/>
+        <text x="80" y="83" font-family="Syne,sans-serif" font-size="10" font-weight="700" fill="#fff">T1 HIGH</text>
+        <text x="80" y="97" font-family="Fira Code,monospace" font-size="8.5" fill="#888">Agent call</text>
+        <text x="180" y="90" font-family="Fira Code,monospace" font-size="9" fill="#ccc">P &gt; 0.70</text>
+        <text x="290" y="90" font-family="Fira Code,monospace" font-size="9" fill="#ccc">Outbound call</text>
+        <text x="400" y="83" font-family="Fira Code,monospace" font-size="9" fill="#fff">₹400–800</text>
+        <text x="400" y="96" font-family="Fira Code,monospace" font-size="8.5" fill="#888">incl. agent time</text>
+        <text x="510" y="90" font-family="Fira Code,monospace" font-size="9" fill="#e66">HIGH — can</text>
+        <text x="630" y="90" font-family="Fira Code,monospace" font-size="9" fill="#fff">₹499+</text>
+
+        <!-- Row 2 -->
+        <rect x="30" y="109" width="700" height="44" fill="#333"/>
+        <text x="80" y="127" font-family="Syne,sans-serif" font-size="10" font-weight="700" fill="#fff">T2 MEDIUM</text>
+        <text x="80" y="141" font-family="Fira Code,monospace" font-size="8.5" fill="#aaa">Automated</text>
+        <text x="180" y="134" font-family="Fira Code,monospace" font-size="9" fill="#ddd">P 0.40–0.70</text>
+        <text x="290" y="134" font-family="Fira Code,monospace" font-size="9" fill="#ddd">SMS / App push</text>
+        <text x="400" y="127" font-family="Fira Code,monospace" font-size="9" fill="#fff">₹50–150</text>
+        <text x="400" y="140" font-family="Fira Code,monospace" font-size="8.5" fill="#888">offer value incl.</text>
+        <text x="510" y="134" font-family="Fira Code,monospace" font-size="9" fill="#ccc">MEDIUM</text>
+        <text x="630" y="134" font-family="Fira Code,monospace" font-size="9" fill="#fff">₹299+</text>
+
+        <!-- Row 3 -->
+        <rect x="30" y="153" width="700" height="44" fill="#f0f0f0" stroke="#ddd"/>
+        <text x="80" y="171" font-family="Syne,sans-serif" font-size="10" font-weight="700" fill="#555">T3 LOW</text>
+        <text x="80" y="185" font-family="Fira Code,monospace" font-size="8.5" fill="#999">Loyalty</text>
+        <text x="180" y="178" font-family="Fira Code,monospace" font-size="9" fill="#555">P &lt; 0.40</text>
+        <text x="290" y="178" font-family="Fira Code,monospace" font-size="9" fill="#555">Points / badge</text>
+        <text x="400" y="171" font-family="Fira Code,monospace" font-size="9" fill="#333">₹10–30</text>
+        <text x="400" y="184" font-family="Fira Code,monospace" font-size="8.5" fill="#aaa">brand cost only</text>
+        <text x="510" y="178" font-family="Fira Code,monospace" font-size="9" fill="#777">LOW</text>
+        <text x="630" y="178" font-family="Fira Code,monospace" font-size="9" fill="#555">Any</text>
+
+        <!-- separator footnote -->
+        <line x1="30" y1="207" x2="730" y2="207" stroke="#ddd" stroke-width="1"/>
+        <text x="30" y="222" font-family="Fira Code,monospace" font-size="8.5" fill="#aaa">* T1 false-positive risk: proactive contact can trigger plan comparison in customers who were not previously considering switching.</text>
+        <text x="30" y="235" font-family="Fira Code,monospace" font-size="8.5" fill="#aaa">  Set T1 threshold conservatively; calibrate against actual churn rate by decile in validation set, not against default 0.5 threshold.</text>
+      </svg>
+    </div>
+    <figcaption><em>Fig. 2 — Intervention cost-value matrix. Each tier's threshold, channel, cost, false-positive risk, and minimum ARPU justification laid out as an operational reference. The T1 false-positive risk note is the most important cell in the table: an agent call to a non-churner at risk of triggering reconsideration is the costliest type of false positive in retention operations.</em></figcaption>
+  </figure>
+
+  <h2>Timing: When to Fire the Save Offer</h2>
+
+  <p>Timing is the underappreciated dimension of churn intervention. A save offer delivered too early — before the customer has shown visible disengagement — feels random and may actually prompt the customer to think about their plan when they hadn't been. An offer delivered too late — after the customer has already researched competitors and made a mental commitment to leave — is usually ineffective regardless of its value.</p>
+
+  <p>The optimal intervention window is the three-to-four-week period after the first behavioral signal (usage drop or complaint) but before the customer initiates porting or cancellation. In practice, this means the scoring model should run weekly or bi-weekly on the full active subscriber base, and the intervention workflow should fire the moment a customer's score crosses the tier threshold — not at the end of the month when the batch job runs.</p>
+
+  <p>For a telecom with monthly billing cycles, this means the churn model needs to be embedded in a near-real-time scoring pipeline, not a monthly batch process. A customer whose usage drops in week 2 of their billing cycle cannot wait until week 4 for a save offer to be generated. The model's value decays rapidly with scoring lag.</p>
+
+  <h2>Closing: Prediction Is the Easy Part</h2>
+
+  <p>An 83 percent accuracy classification model is not a churn-retention strategy. It is one component of one. The strategy requires a scoring pipeline that runs frequently enough to catch the early signal window, a save-offer portfolio with tier-appropriate cost structures, an intervention delivery system that can fire the right offer to the right customer within days (not weeks) of the model scoring them, and a feedback loop that tracks save outcomes by tier and threshold so the model and the offer design can be updated quarterly.</p>
+
+  <p>The operators who get retention right are not the ones with the most sophisticated models. They are the ones who have disciplined the connection between the model's output and the frontline team's behavior — where every customer who scores above the Tier 1 threshold receives a call within 72 hours, where every save interaction is logged with an outcome, and where the retention budget is allocated proportionally to where the model says the risk actually lives.</p>
+
+  <p>The model tells you who might leave. The playbook determines whether they do.</p>
+
+  <div class="end-rule">
+    DATA: telecom_churn_data.csv — high-value telecom subscribers, 4-month observation window, churn label on final month. FEATURES: Voice/data usage by month, recharge behavior, customer care contacts, network events. MODELS: Logistic regression, decision tree, random forest; class_weight='balanced' for 8–10% churn minority. STACK: scikit-learn, imbalanced-learn, Pandas, Seaborn. This analysis is an educational portfolio exercise.
+  </div>
+
+</div>
+</body>
+</html>
