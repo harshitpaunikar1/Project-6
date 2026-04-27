@@ -1,2 +1,2 @@
-# Project-6
+# Telecom Churn Prediction
 Telecom Churn prediction model
